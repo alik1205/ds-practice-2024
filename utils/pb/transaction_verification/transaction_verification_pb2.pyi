@@ -15,16 +15,20 @@ class CreditCard(_message.Message):
     def __init__(self, number: _Optional[str] = ..., expirationDate: _Optional[str] = ..., cvv: _Optional[str] = ...) -> None: ...
 
 class VerificationRequest(_message.Message):
-    __slots__ = ("creditCard",)
+    __slots__ = ("orderId", "creditCard")
+    ORDERID_FIELD_NUMBER: _ClassVar[int]
     CREDITCARD_FIELD_NUMBER: _ClassVar[int]
+    orderId: str
     creditCard: CreditCard
-    def __init__(self, creditCard: _Optional[_Union[CreditCard, _Mapping]] = ...) -> None: ...
+    def __init__(self, orderId: _Optional[str] = ..., creditCard: _Optional[_Union[CreditCard, _Mapping]] = ...) -> None: ...
 
 class VerificationResponse(_message.Message):
-    __slots__ = ("verified",)
+    __slots__ = ("orderId", "verified")
+    ORDERID_FIELD_NUMBER: _ClassVar[int]
     VERIFIED_FIELD_NUMBER: _ClassVar[int]
+    orderId: str
     verified: bool
-    def __init__(self, verified: bool = ...) -> None: ...
+    def __init__(self, orderId: _Optional[str] = ..., verified: bool = ...) -> None: ...
 
 class ErrorResponse(_message.Message):
     __slots__ = ("code", "message")

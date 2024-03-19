@@ -12,7 +12,8 @@ message Item {
 }
 
 message SuggestionRequest {
-  repeated Item items = 4;
+  string orderId = 1;
+  repeated Item items = 2;
 }
 
 message Book {

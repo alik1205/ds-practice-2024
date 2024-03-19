@@ -1,5 +1,6 @@
 import sys
 import os
+import logging
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
@@ -10,10 +11,21 @@ import transaction_verification_pb2_grpc as transaction_verification_grpc
 import grpc
 from concurrent import futures
 
+logger = logging.getLogger(__name__)
+stdout = logging.StreamHandler(stream=sys.stdout)
+
+fmt = logging.Formatter(
+    "%(message)s"
+)
+
+stdout.setFormatter(fmt)
+logger.addHandler(stdout)
+logger.setLevel(logging.INFO)
+
 class TransactionVerification(transaction_verification_grpc.TransactionVerificationServicer):
     def Verification(self, request, context):
         response = transaction_verification.VerificationResponse()
-        print("Running Transaction Verification...")
+        logger.info("Running Transaction Verification for order %s", request.orderId)
 
         if len(request.creditCard.number)!=5:
             response.verified =  False
@@ -21,9 +33,9 @@ class TransactionVerification(transaction_verification_grpc.TransactionVerificat
             response.verified = True
 
         if response.verified:
-            print("Transaction verified successfuly..")
+            logger.info("Transaction verified successfuly.")
         else:
-            print("Transaction verification failed.")
+            logger.error("Transaction verification failed.")
 
         return response
 

@@ -14,10 +14,12 @@ class Item(_message.Message):
     def __init__(self, name: _Optional[str] = ..., quantity: _Optional[int] = ...) -> None: ...
 
 class SuggestionRequest(_message.Message):
-    __slots__ = ("items",)
+    __slots__ = ("orderId", "items")
+    ORDERID_FIELD_NUMBER: _ClassVar[int]
     ITEMS_FIELD_NUMBER: _ClassVar[int]
+    orderId: str
     items: _containers.RepeatedCompositeFieldContainer[Item]
-    def __init__(self, items: _Optional[_Iterable[_Union[Item, _Mapping]]] = ...) -> None: ...
+    def __init__(self, orderId: _Optional[str] = ..., items: _Optional[_Iterable[_Union[Item, _Mapping]]] = ...) -> None: ...
 
 class Book(_message.Message):
     __slots__ = ("bookId", "title", "author")

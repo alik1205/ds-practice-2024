@@ -13,10 +13,12 @@ message CreditCard {
 }
 
 message VerificationRequest {
+  string orderId = 1;
   CreditCard creditCard = 2;
 }
 
 message VerificationResponse {
+  string orderId = 1;
   bool verified = 2;
 }
 

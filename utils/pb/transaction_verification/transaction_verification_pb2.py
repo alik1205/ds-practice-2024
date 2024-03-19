@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1etransaction_verification.proto\x12\x18transaction_verification\"A\n\nCreditCard\x12\x0e\n\x06number\x18\x01 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x02 \x01(\t\x12\x0b\n\x03\x63vv\x18\x03 \x01(\t\"O\n\x13VerificationRequest\x12\x38\n\ncreditCard\x18\x02 \x01(\x0b\x32$.transaction_verification.CreditCard\"(\n\x14VerificationResponse\x12\x10\n\x08verified\x18\x02 \x01(\x08\".\n\rErrorResponse\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t2\x88\x01\n\x17TransactionVerification\x12m\n\x0cVerification\x12-.transaction_verification.VerificationRequest\x1a..transaction_verification.VerificationResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1etransaction_verification.proto\x12\x18transaction_verification\"A\n\nCreditCard\x12\x0e\n\x06number\x18\x01 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x02 \x01(\t\x12\x0b\n\x03\x63vv\x18\x03 \x01(\t\"`\n\x13VerificationRequest\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12\x38\n\ncreditCard\x18\x02 \x01(\x0b\x32$.transaction_verification.CreditCard\"9\n\x14VerificationResponse\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12\x10\n\x08verified\x18\x02 \x01(\x08\".\n\rErrorResponse\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t2\x88\x01\n\x17TransactionVerification\x12m\n\x0cVerification\x12-.transaction_verification.VerificationRequest\x1a..transaction_verification.VerificationResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -24,11 +24,11 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_CREDITCARD']._serialized_start=60
   _globals['_CREDITCARD']._serialized_end=125
   _globals['_VERIFICATIONREQUEST']._serialized_start=127
-  _globals['_VERIFICATIONREQUEST']._serialized_end=206
-  _globals['_VERIFICATIONRESPONSE']._serialized_start=208
-  _globals['_VERIFICATIONRESPONSE']._serialized_end=248
-  _globals['_ERRORRESPONSE']._serialized_start=250
-  _globals['_ERRORRESPONSE']._serialized_end=296
-  _globals['_TRANSACTIONVERIFICATION']._serialized_start=299
-  _globals['_TRANSACTIONVERIFICATION']._serialized_end=435
+  _globals['_VERIFICATIONREQUEST']._serialized_end=223
+  _globals['_VERIFICATIONRESPONSE']._serialized_start=225
+  _globals['_VERIFICATIONRESPONSE']._serialized_end=282
+  _globals['_ERRORRESPONSE']._serialized_start=284
+  _globals['_ERRORRESPONSE']._serialized_end=330
+  _globals['_TRANSACTIONVERIFICATION']._serialized_start=333
+  _globals['_TRANSACTIONVERIFICATION']._serialized_end=469
 # @@protoc_insertion_point(module_scope)

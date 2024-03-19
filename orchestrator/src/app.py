@@ -1,6 +1,8 @@
 import sys
 import os
 import threading
+import uuid
+import logging
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path_fraud_detection = os.path.abspath(os.path.join(FILE, '../../../utils/pb/fraud_detection'))
@@ -22,7 +24,26 @@ import suggestions_pb2_grpc as suggestions_grpc
 
 import grpc
 
-def FraudDetection(request):
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+
+logger = logging.getLogger(__name__)
+stdout = logging.StreamHandler(stream=sys.stdout)
+
+fmt = logging.Formatter(
+    "%(message)s"
+)
+
+stdout.setFormatter(fmt)
+logger.addHandler(stdout)
+logger.setLevel(logging.INFO)
+
+# Create a simple Flask app.
+app = Flask(__name__)
+# Enable CORS for the app.
+CORS(app)
+
+def FraudDetection(request, order_id):
     with grpc.insecure_channel('fraud_detection:50051') as channel:
         stub = fraud_detection_grpc.FraudDetectionStub(channel)
 
@@ -37,10 +58,10 @@ def FraudDetection(request):
             zip=request['billingAddress']['zip'],
             country=request['billingAddress']['country'],
             )
-        response = stub.Detection(fraud_detection.DetectionRequest(user=user, billingAddress=billingAddress))
+        response = stub.Detection(fraud_detection.DetectionRequest(orderId=order_id, user=user, billingAddress=billingAddress))
     return response
 
-def TransactionVerification(request):
+def TransactionVerification(request, order_id):
     with grpc.insecure_channel('transaction_verification:50052') as channel:
         stub = transaction_verification_grpc.TransactionVerificationStub(channel)
 
@@ -49,10 +70,10 @@ def TransactionVerification(request):
             expirationDate=request['creditCard']['expirationDate'],
             cvv=request['creditCard']['cvv']
             )
-        response = stub.Verification(transaction_verification.VerificationRequest(creditCard=creditCard))
+        response = stub.Verification(transaction_verification.VerificationRequest(orderId=order_id, creditCard=creditCard))
     return response
 
-def SuggestionsService(request):
+def SuggestionsService(request, order_id):
     with grpc.insecure_channel('suggestions:50053') as channel:
         stub = suggestions_grpc.SuggestionsServiceStub(channel)
 
@@ -62,24 +83,9 @@ def SuggestionsService(request):
             item.name = _item["name"]
             item.quantity = _item["quantity"]
             items.append(item)
-        response = stub.Suggestions(suggestions.SuggestionRequest(items=items))
+        response = stub.Suggestions(suggestions.SuggestionRequest(orderId=order_id, items=items))
     return response
 
-from flask import Flask, request
-from flask_cors import CORS
-
-# Create a simple Flask app.
-app = Flask(__name__)
-# Enable CORS for the app.
-CORS(app)
-
-# fraud_detection_thread = threading.Thread(target=FraudDetection)
-# suggestions_thread = threading.Thread(target=SuggestionsService)
-# transaction_verification_thread = threading.Thread(target=TransactionVerification)
-
-# fraud_detection_thread.start()
-# suggestions_thread.start()
-# transaction_verification_thread.start()
 def run_in_thread(func, args, result_dict, key):
     result_dict[key] = func(*args)
 
@@ -88,13 +94,17 @@ def checkout():
     """
     Responds with a JSON object containing the order ID, status, and suggested books.
     """
-    print("Request Data:", request.json)
+    logger.info("Received checkout request: %s", request.json)
+
+    logger.info("Generating Order ID...")
+    order_id = str(uuid.uuid4())
+    logger.info("Order ID: %s", order_id)
 
     results = {}
 
-    fraud_detection_thread = threading.Thread(target=run_in_thread, args=(FraudDetection, (request.json,), results, 'fraud_detection'))
-    suggestions_thread = threading.Thread(target=run_in_thread, args=(SuggestionsService, (request.json,), results, 'suggestions'))
-    transaction_verification_thread = threading.Thread(target=run_in_thread, args=(TransactionVerification, (request.json,), results, 'transaction_verification'))
+    fraud_detection_thread = threading.Thread(target=run_in_thread, args=(FraudDetection, (request.json, order_id), results, 'fraud_detection'))
+    suggestions_thread = threading.Thread(target=run_in_thread, args=(SuggestionsService, (request.json, order_id), results, 'suggestions'))
+    transaction_verification_thread = threading.Thread(target=run_in_thread, args=(TransactionVerification, (request.json, order_id), results, 'transaction_verification'))
 
     fraud_detection_thread.start()
     suggestions_thread.start()
@@ -108,12 +118,12 @@ def checkout():
     suggestions_response = results['suggestions']
     transaction_verification_response = results['transaction_verification']
 
-    print("Creatin response...")
+    logger.info("Creating response...")
     response = {
-            "orderId": '123',
-            "status": '',
-            "suggestedBooks": []
-        }
+        "orderId": order_id,  # Include generated OrderID in the response
+        "status": '',
+        "suggestedBooks": []
+    }
 
     for suggested_book in suggestions_response.suggestedBooks:
         book_dict = {
@@ -128,9 +138,9 @@ def checkout():
     else:
         response['status'] = 'Order Accepted'
 
-    return response
+    return jsonify(response)
 
 
 if __name__ == '__main__':
     # The default port is 5000.
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)

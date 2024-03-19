@@ -20,11 +20,13 @@ message BillingAddress {
 }
 
 message DetectionRequest {
-  User user = 1;
-  BillingAddress billingAddress = 8;
+  string orderId = 1;
+  User user = 2;
+  BillingAddress billingAddress = 3;
 }
 
 message DetectionResponse {
+  string orderId = 1;
   bool detected = 2;
 }
 

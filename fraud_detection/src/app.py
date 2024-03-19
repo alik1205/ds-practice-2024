@@ -1,5 +1,6 @@
 import sys
 import os
+import logging
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/fraud_detection'))
@@ -10,22 +11,38 @@ import fraud_detection_pb2_grpc as fraud_detection_grpc
 import grpc
 from concurrent import futures
 
+# logging.basicConfig(level=logging.NOTSET)
+# logging.root.setLevel(logging.NOTSET)
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
+# c_handler = logging.StreamHandler()
+# logger.addHandler(c_handler)
+# logger.setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
+stdout = logging.StreamHandler(stream=sys.stdout)
+
+fmt = logging.Formatter(
+    "%(message)s"
+)
+
+stdout.setFormatter(fmt)
+logger.addHandler(stdout)
+logger.setLevel(logging.INFO)
+
 class FraudDetection(fraud_detection_grpc.FraudDetectionServicer):
     def Detection(self, request, context):
         response = fraud_detection.DetectionResponse()
-        print("Running Fraud Detection...")
+        logger.info("Running Fraud Detection for order %s", request.orderId)
 
-
-        print(request.user.name )
         if request.user.name == "Alex":
             response.detected = True
         else:
             response.detected = False
 
         if not response.detected:
-            print("No fraud detected.")
+            logger.info("No fraud detected.")
         else:
-            print("Detected fraud.")
+            logger.error("Fraud detected.")
         
         return response
 

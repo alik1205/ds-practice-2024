@@ -27,18 +27,22 @@ class BillingAddress(_message.Message):
     def __init__(self, street: _Optional[str] = ..., city: _Optional[str] = ..., state: _Optional[str] = ..., zip: _Optional[str] = ..., country: _Optional[str] = ...) -> None: ...
 
 class DetectionRequest(_message.Message):
-    __slots__ = ("user", "billingAddress")
+    __slots__ = ("orderId", "user", "billingAddress")
+    ORDERID_FIELD_NUMBER: _ClassVar[int]
     USER_FIELD_NUMBER: _ClassVar[int]
     BILLINGADDRESS_FIELD_NUMBER: _ClassVar[int]
+    orderId: str
     user: User
     billingAddress: BillingAddress
-    def __init__(self, user: _Optional[_Union[User, _Mapping]] = ..., billingAddress: _Optional[_Union[BillingAddress, _Mapping]] = ...) -> None: ...
+    def __init__(self, orderId: _Optional[str] = ..., user: _Optional[_Union[User, _Mapping]] = ..., billingAddress: _Optional[_Union[BillingAddress, _Mapping]] = ...) -> None: ...
 
 class DetectionResponse(_message.Message):
-    __slots__ = ("detected",)
+    __slots__ = ("orderId", "detected")
+    ORDERID_FIELD_NUMBER: _ClassVar[int]
     DETECTED_FIELD_NUMBER: _ClassVar[int]
+    orderId: str
     detected: bool
-    def __init__(self, detected: bool = ...) -> None: ...
+    def __init__(self, orderId: _Optional[str] = ..., detected: bool = ...) -> None: ...
 
 class ErrorResponse(_message.Message):
     __slots__ = ("code", "message")
