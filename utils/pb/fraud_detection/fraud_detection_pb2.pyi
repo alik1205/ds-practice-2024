@@ -12,29 +12,31 @@ class User(_message.Message):
     contact: str
     def __init__(self, name: _Optional[str] = ..., contact: _Optional[str] = ...) -> None: ...
 
-class BillingAddress(_message.Message):
-    __slots__ = ("street", "city", "state", "zip", "country")
-    STREET_FIELD_NUMBER: _ClassVar[int]
-    CITY_FIELD_NUMBER: _ClassVar[int]
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    ZIP_FIELD_NUMBER: _ClassVar[int]
-    COUNTRY_FIELD_NUMBER: _ClassVar[int]
-    street: str
-    city: str
-    state: str
-    zip: str
-    country: str
-    def __init__(self, street: _Optional[str] = ..., city: _Optional[str] = ..., state: _Optional[str] = ..., zip: _Optional[str] = ..., country: _Optional[str] = ...) -> None: ...
+class CreditCard(_message.Message):
+    __slots__ = ("number", "expirationDate", "cvv")
+    NUMBER_FIELD_NUMBER: _ClassVar[int]
+    EXPIRATIONDATE_FIELD_NUMBER: _ClassVar[int]
+    CVV_FIELD_NUMBER: _ClassVar[int]
+    number: str
+    expirationDate: str
+    cvv: str
+    def __init__(self, number: _Optional[str] = ..., expirationDate: _Optional[str] = ..., cvv: _Optional[str] = ...) -> None: ...
 
-class DetectionRequest(_message.Message):
-    __slots__ = ("orderId", "user", "billingAddress")
+class DURequest(_message.Message):
+    __slots__ = ("orderId", "user")
     ORDERID_FIELD_NUMBER: _ClassVar[int]
     USER_FIELD_NUMBER: _ClassVar[int]
-    BILLINGADDRESS_FIELD_NUMBER: _ClassVar[int]
     orderId: str
     user: User
-    billingAddress: BillingAddress
-    def __init__(self, orderId: _Optional[str] = ..., user: _Optional[_Union[User, _Mapping]] = ..., billingAddress: _Optional[_Union[BillingAddress, _Mapping]] = ...) -> None: ...
+    def __init__(self, orderId: _Optional[str] = ..., user: _Optional[_Union[User, _Mapping]] = ...) -> None: ...
+
+class DCCRequest(_message.Message):
+    __slots__ = ("orderId", "creditCard")
+    ORDERID_FIELD_NUMBER: _ClassVar[int]
+    CREDITCARD_FIELD_NUMBER: _ClassVar[int]
+    orderId: str
+    creditCard: CreditCard
+    def __init__(self, orderId: _Optional[str] = ..., creditCard: _Optional[_Union[CreditCard, _Mapping]] = ...) -> None: ...
 
 class DetectionResponse(_message.Message):
     __slots__ = ("orderId", "detected")

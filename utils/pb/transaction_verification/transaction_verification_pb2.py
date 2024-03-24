@@ -14,21 +14,31 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1etransaction_verification.proto\x12\x18transaction_verification\"A\n\nCreditCard\x12\x0e\n\x06number\x18\x01 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x02 \x01(\t\x12\x0b\n\x03\x63vv\x18\x03 \x01(\t\"`\n\x13VerificationRequest\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12\x38\n\ncreditCard\x18\x02 \x01(\x0b\x32$.transaction_verification.CreditCard\"9\n\x14VerificationResponse\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12\x10\n\x08verified\x18\x02 \x01(\x08\".\n\rErrorResponse\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t2\x88\x01\n\x17TransactionVerification\x12m\n\x0cVerification\x12-.transaction_verification.VerificationRequest\x1a..transaction_verification.VerificationResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1etransaction_verification.proto\x12\x18transaction_verification\"&\n\x04Item\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x10\n\x08quantity\x18\x02 \x01(\x05\"5\n\x04\x42ook\x12\x0e\n\x06\x62ookId\x18\x01 \x01(\t\x12\r\n\x05title\x18\x02 \x01(\t\x12\x0e\n\x06\x61uthor\x18\x03 \x01(\t\"%\n\x04User\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontact\x18\x02 \x01(\t\"A\n\nCreditCard\x12\x0e\n\x06number\x18\x01 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x02 \x01(\t\x12\x0b\n\x03\x63vv\x18\x03 \x01(\t\"K\n\tVIRequest\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12-\n\x05items\x18\x02 \x03(\x0b\x32\x1e.transaction_verification.Item\"W\n\nVCCRequest\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12\x38\n\ncreditCard\x18\x02 \x01(\x0b\x32$.transaction_verification.CreditCard\"J\n\tVURequest\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12,\n\x04user\x18\x02 \x01(\x0b\x32\x1e.transaction_verification.User\"9\n\x14VerificationResponse\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12\x10\n\x08verified\x18\x02 \x01(\x08\".\n\rErrorResponse\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t2\xdc\x02\n\x17TransactionVerification\x12h\n\x11VerificationItems\x12#.transaction_verification.VIRequest\x1a..transaction_verification.VerificationResponse\x12g\n\x10VerificationUser\x12#.transaction_verification.VURequest\x1a..transaction_verification.VerificationResponse\x12n\n\x16VerificationCreditCard\x12$.transaction_verification.VCCRequest\x1a..transaction_verification.VerificationResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'transaction_verification_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_CREDITCARD']._serialized_start=60
-  _globals['_CREDITCARD']._serialized_end=125
-  _globals['_VERIFICATIONREQUEST']._serialized_start=127
-  _globals['_VERIFICATIONREQUEST']._serialized_end=223
-  _globals['_VERIFICATIONRESPONSE']._serialized_start=225
-  _globals['_VERIFICATIONRESPONSE']._serialized_end=282
-  _globals['_ERRORRESPONSE']._serialized_start=284
-  _globals['_ERRORRESPONSE']._serialized_end=330
-  _globals['_TRANSACTIONVERIFICATION']._serialized_start=333
-  _globals['_TRANSACTIONVERIFICATION']._serialized_end=469
+  _globals['_ITEM']._serialized_start=60
+  _globals['_ITEM']._serialized_end=98
+  _globals['_BOOK']._serialized_start=100
+  _globals['_BOOK']._serialized_end=153
+  _globals['_USER']._serialized_start=155
+  _globals['_USER']._serialized_end=192
+  _globals['_CREDITCARD']._serialized_start=194
+  _globals['_CREDITCARD']._serialized_end=259
+  _globals['_VIREQUEST']._serialized_start=261
+  _globals['_VIREQUEST']._serialized_end=336
+  _globals['_VCCREQUEST']._serialized_start=338
+  _globals['_VCCREQUEST']._serialized_end=425
+  _globals['_VUREQUEST']._serialized_start=427
+  _globals['_VUREQUEST']._serialized_end=501
+  _globals['_VERIFICATIONRESPONSE']._serialized_start=503
+  _globals['_VERIFICATIONRESPONSE']._serialized_end=560
+  _globals['_ERRORRESPONSE']._serialized_start=562
+  _globals['_ERRORRESPONSE']._serialized_end=608
+  _globals['_TRANSACTIONVERIFICATION']._serialized_start=611
+  _globals['_TRANSACTIONVERIFICATION']._serialized_end=959
 # @@protoc_insertion_point(module_scope)

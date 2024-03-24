@@ -3,7 +3,25 @@ syntax = "proto3";
 package transaction_verification;
 
 service TransactionVerification {
-  rpc Verification (VerificationRequest) returns (VerificationResponse);
+  rpc VerificationItems (VIRequest) returns (VerificationResponse);
+  rpc VerificationUser (VURequest) returns (VerificationResponse);
+  rpc VerificationCreditCard (VCCRequest) returns (VerificationResponse);
+}
+
+message Item {
+  string name = 1;
+  int32 quantity = 2;
+}
+
+message Book {
+  string bookId = 1;
+  string title = 2;
+  string author = 3;
+}
+
+message User {
+  string name = 1;
+  string contact = 2;
 }
 
 message CreditCard {
@@ -12,9 +30,19 @@ message CreditCard {
   string cvv = 3;
 }
 
-message VerificationRequest {
+message VIRequest {
+  string orderId = 1;
+  repeated Item items = 2;
+}
+
+message VCCRequest {
   string orderId = 1;
   CreditCard creditCard = 2;
+}
+
+message VURequest {
+  string orderId = 1;
+  User user = 2;
 }
 
 message VerificationResponse {

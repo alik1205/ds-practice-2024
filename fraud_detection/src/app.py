@@ -11,13 +11,6 @@ import fraud_detection_pb2_grpc as fraud_detection_grpc
 import grpc
 from concurrent import futures
 
-# logging.basicConfig(level=logging.NOTSET)
-# logging.root.setLevel(logging.NOTSET)
-# logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
-# c_handler = logging.StreamHandler()
-# logger.addHandler(c_handler)
-# logger.setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 stdout = logging.StreamHandler(stream=sys.stdout)
 
@@ -30,9 +23,9 @@ logger.addHandler(stdout)
 logger.setLevel(logging.INFO)
 
 class FraudDetection(fraud_detection_grpc.FraudDetectionServicer):
-    def Detection(self, request, context):
+    def DetectionUser(self, request, context):
         response = fraud_detection.DetectionResponse()
-        logger.info("Running Fraud Detection for order %s", request.orderId)
+        logger.info("Running Fraud DetectionUser for order %s", request.orderId)
 
         if request.user.name == "Alex":
             response.detected = True
@@ -44,6 +37,12 @@ class FraudDetection(fraud_detection_grpc.FraudDetectionServicer):
         else:
             logger.error("Fraud detected.")
         
+        return response
+    
+    def DetectionCreditCard(self, request, context):
+        response = fraud_detection.DetectionResponse()
+        logger.info("Running Fraud DetectCreditCard for order %s", request.orderId)
+        response.detected = False
         return response
 
 def serve():

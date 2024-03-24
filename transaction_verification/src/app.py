@@ -23,9 +23,21 @@ logger.addHandler(stdout)
 logger.setLevel(logging.INFO)
 
 class TransactionVerification(transaction_verification_grpc.TransactionVerificationServicer):
-    def Verification(self, request, context):
+    def VerificationItems(self, request, context):
         response = transaction_verification.VerificationResponse()
-        logger.info("Running Transaction Verification for order %s", request.orderId)
+        logger.info("Running Transaction Verification Items for order %s", request.orderId)
+        response.verified = True
+        return response
+    
+    def VerificationUser(self, request, context):
+        response = transaction_verification.VerificationResponse()
+        logger.info("Running Transaction Verification User for order %s", request.orderId)
+        response.verified = True
+        return response
+    
+    def VerificationCreditCard(self, request, context):
+        response = transaction_verification.VerificationResponse()
+        logger.info("Running Transaction Verification Credit Card for order %s", request.orderId)
 
         if len(request.creditCard.number)!=5:
             response.verified =  False
@@ -40,6 +52,7 @@ class TransactionVerification(transaction_verification_grpc.TransactionVerificat
         return response
 
 def serve():
+
     # Create a gRPC server
     server = grpc.server(futures.ThreadPoolExecutor())
     # Add TransactionVerification service

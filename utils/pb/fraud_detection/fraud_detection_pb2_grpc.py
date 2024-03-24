@@ -14,9 +14,14 @@ class FraudDetectionStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Detection = channel.unary_unary(
-                '/fraud_detection.FraudDetection/Detection',
-                request_serializer=fraud__detection__pb2.DetectionRequest.SerializeToString,
+        self.DetectionUser = channel.unary_unary(
+                '/fraud_detection.FraudDetection/DetectionUser',
+                request_serializer=fraud__detection__pb2.DURequest.SerializeToString,
+                response_deserializer=fraud__detection__pb2.DetectionResponse.FromString,
+                )
+        self.DetectionCreditCard = channel.unary_unary(
+                '/fraud_detection.FraudDetection/DetectionCreditCard',
+                request_serializer=fraud__detection__pb2.DCCRequest.SerializeToString,
                 response_deserializer=fraud__detection__pb2.DetectionResponse.FromString,
                 )
 
@@ -24,7 +29,13 @@ class FraudDetectionStub(object):
 class FraudDetectionServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def Detection(self, request, context):
+    def DetectionUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DetectionCreditCard(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,9 +44,14 @@ class FraudDetectionServicer(object):
 
 def add_FraudDetectionServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Detection': grpc.unary_unary_rpc_method_handler(
-                    servicer.Detection,
-                    request_deserializer=fraud__detection__pb2.DetectionRequest.FromString,
+            'DetectionUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.DetectionUser,
+                    request_deserializer=fraud__detection__pb2.DURequest.FromString,
+                    response_serializer=fraud__detection__pb2.DetectionResponse.SerializeToString,
+            ),
+            'DetectionCreditCard': grpc.unary_unary_rpc_method_handler(
+                    servicer.DetectionCreditCard,
+                    request_deserializer=fraud__detection__pb2.DCCRequest.FromString,
                     response_serializer=fraud__detection__pb2.DetectionResponse.SerializeToString,
             ),
     }
@@ -49,7 +65,7 @@ class FraudDetection(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def Detection(request,
+    def DetectionUser(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +75,25 @@ class FraudDetection(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/fraud_detection.FraudDetection/Detection',
-            fraud__detection__pb2.DetectionRequest.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/fraud_detection.FraudDetection/DetectionUser',
+            fraud__detection__pb2.DURequest.SerializeToString,
+            fraud__detection__pb2.DetectionResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DetectionCreditCard(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/fraud_detection.FraudDetection/DetectionCreditCard',
+            fraud__detection__pb2.DCCRequest.SerializeToString,
             fraud__detection__pb2.DetectionResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
