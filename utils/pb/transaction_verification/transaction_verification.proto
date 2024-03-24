@@ -8,6 +8,10 @@ service TransactionVerification {
   rpc VerificationCreditCard (VCCRequest) returns (VerificationResponse);
 }
 
+message VectorClock {
+  map<string, int32> events = 6;
+}
+
 message Item {
   string name = 1;
   int32 quantity = 2;
@@ -32,22 +36,23 @@ message CreditCard {
 
 message VIRequest {
   string orderId = 1;
-  repeated Item items = 2;
+  repeated Item items = 3;
 }
 
 message VCCRequest {
   string orderId = 1;
-  CreditCard creditCard = 2;
+  CreditCard creditCard = 3;
 }
 
 message VURequest {
   string orderId = 1;
-  User user = 2;
+  User user = 3;
 }
 
 message VerificationResponse {
   string orderId = 1;
-  bool verified = 2;
+  VectorClock vectorClock = 2;
+  bool verified = 3;
 }
 
 message ErrorResponse {

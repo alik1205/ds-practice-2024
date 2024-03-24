@@ -5,6 +5,19 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class VectorClock(_message.Message):
+    __slots__ = ("events",)
+    class EventsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: int
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[int] = ...) -> None: ...
+    EVENTS_FIELD_NUMBER: _ClassVar[int]
+    events: _containers.ScalarMap[str, int]
+    def __init__(self, events: _Optional[_Mapping[str, int]] = ...) -> None: ...
+
 class Item(_message.Message):
     __slots__ = ("name", "quantity")
     NAME_FIELD_NUMBER: _ClassVar[int]
@@ -32,14 +45,14 @@ class Book(_message.Message):
     def __init__(self, bookId: _Optional[str] = ..., title: _Optional[str] = ..., author: _Optional[str] = ...) -> None: ...
 
 class SuggestionResponse(_message.Message):
-    __slots__ = ("orderId", "status", "suggestedBooks")
+    __slots__ = ("orderId", "vectorClock", "suggestedBooks")
     ORDERID_FIELD_NUMBER: _ClassVar[int]
-    STATUS_FIELD_NUMBER: _ClassVar[int]
+    VECTORCLOCK_FIELD_NUMBER: _ClassVar[int]
     SUGGESTEDBOOKS_FIELD_NUMBER: _ClassVar[int]
     orderId: str
-    status: str
+    vectorClock: VectorClock
     suggestedBooks: _containers.RepeatedCompositeFieldContainer[Book]
-    def __init__(self, orderId: _Optional[str] = ..., status: _Optional[str] = ..., suggestedBooks: _Optional[_Iterable[_Union[Book, _Mapping]]] = ...) -> None: ...
+    def __init__(self, orderId: _Optional[str] = ..., vectorClock: _Optional[_Union[VectorClock, _Mapping]] = ..., suggestedBooks: _Optional[_Iterable[_Union[Book, _Mapping]]] = ...) -> None: ...
 
 class ErrorResponse(_message.Message):
     __slots__ = ("code", "message")

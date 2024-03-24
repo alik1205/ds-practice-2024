@@ -22,10 +22,20 @@ stdout.setFormatter(fmt)
 logger.addHandler(stdout)
 logger.setLevel(logging.INFO)
 
+def initialize_vector_clock(response):
+    events_order = ['TV-items', 'TV-user_data', 'FD-user_data', 'TV-credit_card', 'FD-credit_card', 'S-books']
+    for event in events_order:
+        response.vectorClock.events[event] = 0
+    logger.info("Suggestions Vector Clock is initialized")
+    return response
+
 class Suggestions(suggestions_grpc.SuggestionsServiceServicer):
     def Suggestions(self, request, context):
         response = suggestions.SuggestionResponse()
         logger.info("Generating Suggestions for order %s", request.orderId)
+
+        response = initialize_vector_clock(response)
+        response.vectorClock.events['S-books'] += 1
 
         book = {'bookId': '123', 'title': 'Dummy Book 1', 'author': 'Author 1'}
         book = suggestions.Book()

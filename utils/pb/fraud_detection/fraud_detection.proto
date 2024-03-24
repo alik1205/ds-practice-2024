@@ -7,6 +7,10 @@ service FraudDetection {
   rpc DetectionCreditCard (DCCRequest) returns (DetectionResponse);
 }
 
+message VectorClock {
+  map<string, int32> events = 6;
+}
+
 message User {
   string name = 1;
   string contact = 2;
@@ -20,17 +24,18 @@ message CreditCard {
 
 message DURequest {
   string orderId = 1;
-  User user = 2;
+  User user = 3;
 }
 
 message DCCRequest {
   string orderId = 1;
-  CreditCard creditCard = 2;
+  CreditCard creditCard = 3;
 }
 
 message DetectionResponse {
   string orderId = 1;
-  bool detected = 2;
+  VectorClock vectorClock = 2;
+  bool detected = 3;
 }
 
 message ErrorResponse {

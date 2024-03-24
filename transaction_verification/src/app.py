@@ -22,22 +22,38 @@ stdout.setFormatter(fmt)
 logger.addHandler(stdout)
 logger.setLevel(logging.INFO)
 
+def initialize_vector_clock(response):
+    events_order = ['TV-items', 'TV-user_data', 'FD-user_data', 'TV-credit_card', 'FD-credit_card', 'S-books']
+    for event in events_order:
+        response.vectorClock.events[event] = 0
+    logger.info("Transaction Verification Vector Clock is initialized")
+    return response
+
+
+
 class TransactionVerification(transaction_verification_grpc.TransactionVerificationServicer):
     def VerificationItems(self, request, context):
         response = transaction_verification.VerificationResponse()
         logger.info("Running Transaction Verification Items for order %s", request.orderId)
+        response = initialize_vector_clock(response)
+        response.vectorClock.events['TV-items'] += 1
         response.verified = True
         return response
     
     def VerificationUser(self, request, context):
         response = transaction_verification.VerificationResponse()
         logger.info("Running Transaction Verification User for order %s", request.orderId)
+        response = initialize_vector_clock(response)
+        response.vectorClock.events['TV-user_data'] += 1
         response.verified = True
         return response
     
     def VerificationCreditCard(self, request, context):
         response = transaction_verification.VerificationResponse()
         logger.info("Running Transaction Verification Credit Card for order %s", request.orderId)
+
+        response = initialize_vector_clock(response)
+        response.vectorClock.events['TV-credit_card'] += 1
 
         if len(request.creditCard.number)!=5:
             response.verified =  False

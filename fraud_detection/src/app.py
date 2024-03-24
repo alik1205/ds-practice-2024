@@ -22,10 +22,20 @@ stdout.setFormatter(fmt)
 logger.addHandler(stdout)
 logger.setLevel(logging.INFO)
 
+def initialize_vector_clock(response):
+    events_order = ['TV-items', 'TV-user_data', 'FD-user_data', 'TV-credit_card', 'FD-credit_card', 'S-books']
+    for event in events_order:
+        response.vectorClock.events[event] = 0
+    logger.info("Fraud Detection Vector Clock is initialized")
+    return response
+
 class FraudDetection(fraud_detection_grpc.FraudDetectionServicer):
     def DetectionUser(self, request, context):
         response = fraud_detection.DetectionResponse()
         logger.info("Running Fraud DetectionUser for order %s", request.orderId)
+
+        response = initialize_vector_clock(response)
+        response.vectorClock.events['FD-user_data'] += 1
 
         if request.user.name == "Alex":
             response.detected = True
@@ -42,6 +52,8 @@ class FraudDetection(fraud_detection_grpc.FraudDetectionServicer):
     def DetectionCreditCard(self, request, context):
         response = fraud_detection.DetectionResponse()
         logger.info("Running Fraud DetectCreditCard for order %s", request.orderId)
+        response = initialize_vector_clock(response)
+        response.vectorClock.events['FD-credit_card'] += 1
         response.detected = False
         return response
 

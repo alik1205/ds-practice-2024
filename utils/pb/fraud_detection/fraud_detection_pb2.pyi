@@ -1,8 +1,22 @@
+from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
+
+class VectorClock(_message.Message):
+    __slots__ = ("events",)
+    class EventsEntry(_message.Message):
+        __slots__ = ("key", "value")
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: int
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[int] = ...) -> None: ...
+    EVENTS_FIELD_NUMBER: _ClassVar[int]
+    events: _containers.ScalarMap[str, int]
+    def __init__(self, events: _Optional[_Mapping[str, int]] = ...) -> None: ...
 
 class User(_message.Message):
     __slots__ = ("name", "contact")
@@ -39,12 +53,14 @@ class DCCRequest(_message.Message):
     def __init__(self, orderId: _Optional[str] = ..., creditCard: _Optional[_Union[CreditCard, _Mapping]] = ...) -> None: ...
 
 class DetectionResponse(_message.Message):
-    __slots__ = ("orderId", "detected")
+    __slots__ = ("orderId", "vectorClock", "detected")
     ORDERID_FIELD_NUMBER: _ClassVar[int]
+    VECTORCLOCK_FIELD_NUMBER: _ClassVar[int]
     DETECTED_FIELD_NUMBER: _ClassVar[int]
     orderId: str
+    vectorClock: VectorClock
     detected: bool
-    def __init__(self, orderId: _Optional[str] = ..., detected: bool = ...) -> None: ...
+    def __init__(self, orderId: _Optional[str] = ..., vectorClock: _Optional[_Union[VectorClock, _Mapping]] = ..., detected: bool = ...) -> None: ...
 
 class ErrorResponse(_message.Message):
     __slots__ = ("code", "message")

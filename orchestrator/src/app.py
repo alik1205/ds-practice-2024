@@ -43,20 +43,20 @@ app = Flask(__name__)
 # Enable CORS for the app.
 CORS(app)
 
-# Vector clock initialization
-def initialize_vector_clock():
-    return {'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0}
-
-vector_clock = initialize_vector_clock()
-
-def update_vector_clock(event):
-    vector_clock[event] += 1
+def update_vector_clock(new_vc):
+    global vector_clock
+    events_order = ['TV-items', 'TV-user_data', 'FD-user_data', 'TV-credit_card', 'FD-credit_card', 'S-books']
+    for event in events_order:
+        vector_clock[event]+=new_vc[event]
+    logger.info("Vector Clock is updated: %s", vector_clock)
 
 def FraudDetection(events, request, order_id):
     with grpc.insecure_channel('fraud_detection:50051') as channel:
         stub = fraud_detection_grpc.FraudDetectionStub(channel)
 
-        done = events['TV-user_data'].wait(10)
+        response = fraud_detection.DetectionResponse()
+
+        done = events['TV-user_data'].wait(1)
         if done:
             done = False
             user = fraud_detection.User(
@@ -64,10 +64,14 @@ def FraudDetection(events, request, order_id):
                 contact=request['user']['contact']
                 )
             response = stub.DetectionUser(fraud_detection.DURequest(orderId=order_id, user=user))
+            update_vector_clock(response.vectorClock.events)
             if not response.detected:
                 events['FD-user_data'].set()
             else:
                 return response
+        else:
+            response.detected = True
+            return response
         
         done = events['TV-credit_card'].wait(10)
         if done:
@@ -77,16 +81,22 @@ def FraudDetection(events, request, order_id):
                 cvv=request['creditCard']['cvv']
                 )
             response = stub.DetectionCreditCard(fraud_detection.DCCRequest(orderId=order_id, creditCard=creditCard))
+            update_vector_clock(response.vectorClock.events)
             if not response.detected:
                 events['FD-credit_card'].set()
             else:
                 return response
-
+        else:
+            response.detected = True
+            return response
+        
     return response
 
 def TransactionVerification(events, request, order_id):
     with grpc.insecure_channel('transaction_verification:50052') as channel:
         stub = transaction_verification_grpc.TransactionVerificationStub(channel)
+
+        response = transaction_verification.VerificationResponse()
 
         items = list()
         for _item in request["items"]:
@@ -95,7 +105,7 @@ def TransactionVerification(events, request, order_id):
             item.quantity = _item["quantity"]
             items.append(item)
         response = stub.VerificationItems(transaction_verification.VIRequest(orderId=order_id, items=items))
-
+        update_vector_clock(response.vectorClock.events)
         if response.verified:
             events['TV-items'].set()
         else:
@@ -106,7 +116,7 @@ def TransactionVerification(events, request, order_id):
             contact=request['user']['contact']
             )
         response = stub.VerificationUser(transaction_verification.VURequest(orderId=order_id, user=user))
-
+        update_vector_clock(response.vectorClock.events)
         if response.verified:
             events['TV-user_data'].set()
         else:
@@ -120,10 +130,14 @@ def TransactionVerification(events, request, order_id):
                 cvv=request['creditCard']['cvv']
                 )
             response = stub.VerificationCreditCard(transaction_verification.VCCRequest(orderId=order_id, creditCard=creditCard))
+            update_vector_clock(response.vectorClock.events)
             if response.verified:
                 events['TV-credit_card'].set()
             else:
                 return response
+        else:
+            response.verified = False
+            return response
 
     return response
 
@@ -140,6 +154,9 @@ def SuggestionsService(events, request, order_id):
                 item.quantity = _item["quantity"]
                 items.append(item)
             response = stub.Suggestions(suggestions.SuggestionRequest(orderId=order_id, items=items))
+            update_vector_clock(response.vectorClock.events)
+        else:
+            return None
     return response
 
 def run_in_thread(func, args, result_dict, key):
@@ -147,6 +164,7 @@ def run_in_thread(func, args, result_dict, key):
 
 @app.route('/checkout', methods=['POST'])
 def checkout():
+    global vector_clock
     """
     Responds with a JSON object containing the order ID, status, and suggested books.
     """
@@ -160,6 +178,12 @@ def checkout():
     # Defining an event order
     events_order = ['TV-items', 'TV-user_data', 'FD-user_data', 'TV-credit_card', 'FD-credit_card', 'S-books']
     logger.info("Event Order: %s", events_order)
+
+    # Initialize vector clock
+    vector_clock = dict()
+    for event in events_order:
+        vector_clock[event] = 0
+    logger.info("Vector Clock is initialized: %s", vector_clock)
 
     # Creating an event objects
     events = dict()
@@ -188,22 +212,23 @@ def checkout():
     logger.info("Creating response...")
     response = {
         "orderId": order_id,  # Include generated OrderID in the response
-        "status": '',
+        "status": 'Order Rejected',
         "suggestedBooks": []
     }
-
-    for suggested_book in suggestions_response.suggestedBooks:
-        book_dict = {
-            "bookId": suggested_book.bookId,
-            "title": suggested_book.title,
-            "author": suggested_book.author
-        }
-        response["suggestedBooks"].append(book_dict)
 
     if fraud_detection_response.detected or not transaction_verification_response.verified:
         response['status'] = 'Order Rejected'
     else:
         response['status'] = 'Order Accepted'
+
+    if suggestions_response:
+        for suggested_book in suggestions_response.suggestedBooks:
+            book_dict = {
+                "bookId": suggested_book.bookId,
+                "title": suggested_book.title,
+                "author": suggested_book.author
+            }
+            response["suggestedBooks"].append(book_dict)
 
     return jsonify(response)
 

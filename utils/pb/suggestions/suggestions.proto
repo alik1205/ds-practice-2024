@@ -6,6 +6,10 @@ service SuggestionsService {
   rpc Suggestions (SuggestionRequest) returns (SuggestionResponse);
 }
 
+message VectorClock {
+  map<string, int32> events = 6;
+}
+
 message Item {
   string name = 1;
   int32 quantity = 2;
@@ -13,7 +17,7 @@ message Item {
 
 message SuggestionRequest {
   string orderId = 1;
-  repeated Item items = 2;
+  repeated Item items = 3;
 }
 
 message Book {
@@ -24,7 +28,7 @@ message Book {
 
 message SuggestionResponse {
   string orderId = 1;
-  string status = 2;
+  VectorClock vectorClock = 2;
   repeated Book suggestedBooks = 3;
 }
 
