@@ -8,10 +8,14 @@ FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path_fraud_detection = os.path.abspath(os.path.join(FILE, '../../../utils/pb/fraud_detection'))
 utils_path_transaction_verification = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
 utils_path_suggestions = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions'))
+utils_path_order_queue = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
+
 
 sys.path.insert(0, utils_path_fraud_detection)
 sys.path.insert(1, utils_path_transaction_verification)
 sys.path.insert(2, utils_path_suggestions)
+sys.path.insert(3, utils_path_order_queue)
+
 
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
@@ -21,6 +25,9 @@ import transaction_verification_pb2_grpc as transaction_verification_grpc
 
 import suggestions_pb2 as suggestions
 import suggestions_pb2_grpc as suggestions_grpc
+
+import order_queue_pb2 as order_queue
+import order_queue_pb2_grpc as order_queue_grpc
 
 import grpc
 
@@ -159,6 +166,17 @@ def SuggestionsService(events, request, order_id):
             return None
     return response
 
+def QueueService(action, order_id):
+    with grpc.insecure_channel('order_queue:50054') as channel:
+        stub = order_queue_grpc.OrderQueueStub(channel)
+
+        if action == "ENQUEUE":
+            response = stub.EnqueueOrder(order_queue.EnqueueRequest(orderId=order_id))
+        elif action == "DEQUEUE":
+            response = stub.DequeueOrder(order_queue.DequeueRequest())
+
+    return response
+
 def run_in_thread(func, args, result_dict, key):
     result_dict[key] = func(*args)
 
@@ -229,6 +247,10 @@ def checkout():
                 "author": suggested_book.author
             }
             response["suggestedBooks"].append(book_dict)
+    
+    enqueue_responce = QueueService("ENQUEUE", order_id)
+    if enqueue_responce.Enqueued:
+        logger.info("Order %s is enqueued.", enqueue_responce.orderId)
 
     return jsonify(response)
 
