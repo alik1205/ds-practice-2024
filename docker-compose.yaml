@@ -108,3 +108,4 @@ services:
     volumes:
       - ./utils:/app/utils
       - ./database/src:/app/database/src
+      - ./book_database.json:/app/book_database.json

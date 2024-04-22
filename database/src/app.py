@@ -1,6 +1,7 @@
 import sys
 import os
 import logging
+import json
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/database'))
@@ -22,19 +23,35 @@ stdout.setFormatter(fmt)
 logger.addHandler(stdout)
 logger.setLevel(logging.INFO)
 
-data = {
-    'Learning Python': 3,
-}
+# DATABASE_FILE = '../../book_database.json'
+DATABASE_FILE = os.path.abspath(os.path.join(FILE, '../../../book_database.json'))
+print(DATABASE_FILE)
+try:
+    with open(DATABASE_FILE, 'r') as f:
+        data = json.load(f)
+        print("no error")
+        logger.info("Reading Book Database.")
+except FileNotFoundError:
+    logger.info("Error reading Book Database.")
+    print("error")
+    data = {}
 
 class BooksDatabaseServicer(database_grpc.BooksDatabaseServicer):
-    def Read(self, request, context):
+    def Read(self, request, context):       
+        logger.info("Recived read request.")
         if request.key in data:
+            logger.info(f"{request.key}:{data[request.key]}")
             return database.ReadResponse(value=data[request.key])
         else:
-            return database.ReadResponse(value="")
+            logger.info(f"There is no such book in Book Database: {request.key}")
+            return database.ReadResponse(value=0)
 
     def Write(self, request, context):
+        logger.info("Recived write request.")
+        logger.info(f"Key: {request.key}\nValue: {request.value}")
         data[request.key] = request.value
+        with open(DATABASE_FILE, 'w') as f:
+            json.dump(data, f)
         return database.WriteResponse(success=True)
 
 def serve():

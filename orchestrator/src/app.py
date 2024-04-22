@@ -183,10 +183,10 @@ def QueueService(action, order_id):
     return response
 
 def DatabaseService(action, order_id, key, value=""):
-    with grpc.insecure_channel('order_queue:50055') as channel:
+    with grpc.insecure_channel('database:50055') as channel:
         stub = database_grpc.BooksDatabaseStub(channel)
 
-        if action == "WRIGHT":
+        if action == "WRITE":
             response = stub.Write(database.WriteRequest(key=key, value=value))
         elif action == "READ":
             response = stub.Read(database.ReadRequest(key=key))
@@ -254,6 +254,11 @@ def checkout():
         response['status'] = 'Order Rejected'
     else:
         response['status'] = 'Order Accepted'
+        for item in request.json["items"]:
+            read_responce = DatabaseService("READ", order_id, key=item["name"])
+            logger.info(f"Read Responce: {read_responce.value}")
+            if read_responce.value:
+                write_responce = DatabaseService("WRITE", order_id, key=item["name"], value=read_responce.value-item["quantity"])
 
     if suggestions_response:
         for suggested_book in suggestions_response.suggestedBooks:
