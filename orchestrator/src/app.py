@@ -183,15 +183,23 @@ def QueueService(action, order_id):
     return response
 
 def DatabaseService(action, order_id, key, value=""):
-    with grpc.insecure_channel('database:50055') as channel:
-        stub = database_grpc.BooksDatabaseStub(channel)
+    replicas = ['database2:50055', 'database2:50056', 'database3:50057']
+    for replica in replicas:
+        try:
+            channel = grpc.insecure_channel(replica)
+            stub = database_grpc.BooksDatabaseStub(channel)
+            logger.info(f"Connected to replica {replica}.")
 
-        if action == "WRITE":
-            response = stub.Write(database.WriteRequest(key=key, value=value))
-        elif action == "READ":
-            response = stub.Read(database.ReadRequest(key=key))
+            if action == "WRITE":
+                response = stub.Write(database.WriteRequest(key=key, value=value))
+            elif action == "READ":
+                response = stub.Read(database.ReadRequest(key=key))
 
-    return response
+            return response
+            break
+        except:
+            logger.info(f"Failed to connect to replica {replica}.")
+            continue
 
 def run_in_thread(func, args, result_dict, key):
     result_dict[key] = func(*args)
