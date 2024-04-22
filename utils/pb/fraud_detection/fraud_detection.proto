@@ -3,7 +3,12 @@ syntax = "proto3";
 package fraud_detection;
 
 service FraudDetection {
-  rpc Detection (DetectionRequest) returns (DetectionResponse);
+  rpc DetectionUser (DURequest) returns (DetectionResponse);
+  rpc DetectionCreditCard (DCCRequest) returns (DetectionResponse);
+}
+
+message VectorClock {
+  map<string, int32> events = 6;
 }
 
 message User {
@@ -11,21 +16,26 @@ message User {
   string contact = 2;
 }
 
-message BillingAddress {
-  string street = 1;
-  string city = 2;
-  string state = 3;
-  string zip = 4;
-  string country = 5;
+message CreditCard {
+  string number = 1;
+  string expirationDate = 2;
+  string cvv = 3;
 }
 
-message DetectionRequest {
-  User user = 1;
-  BillingAddress billingAddress = 8;
+message DURequest {
+  string orderId = 1;
+  User user = 3;
+}
+
+message DCCRequest {
+  string orderId = 1;
+  CreditCard creditCard = 3;
 }
 
 message DetectionResponse {
-  bool detected = 2;
+  string orderId = 1;
+  VectorClock vectorClock = 2;
+  bool detected = 3;
 }
 
 message ErrorResponse {

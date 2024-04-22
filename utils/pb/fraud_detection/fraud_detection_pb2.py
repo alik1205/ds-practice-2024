@@ -14,23 +14,31 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15\x66raud_detection.proto\x12\x0f\x66raud_detection\"%\n\x04User\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontact\x18\x02 \x01(\t\"[\n\x0e\x42illingAddress\x12\x0e\n\x06street\x18\x01 \x01(\t\x12\x0c\n\x04\x63ity\x18\x02 \x01(\t\x12\r\n\x05state\x18\x03 \x01(\t\x12\x0b\n\x03zip\x18\x04 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x05 \x01(\t\"p\n\x10\x44\x65tectionRequest\x12#\n\x04user\x18\x01 \x01(\x0b\x32\x15.fraud_detection.User\x12\x37\n\x0e\x62illingAddress\x18\x08 \x01(\x0b\x32\x1f.fraud_detection.BillingAddress\"%\n\x11\x44\x65tectionResponse\x12\x10\n\x08\x64\x65tected\x18\x02 \x01(\x08\".\n\rErrorResponse\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t2d\n\x0e\x46raudDetection\x12R\n\tDetection\x12!.fraud_detection.DetectionRequest\x1a\".fraud_detection.DetectionResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x15\x66raud_detection.proto\x12\x0f\x66raud_detection\"v\n\x0bVectorClock\x12\x38\n\x06\x65vents\x18\x06 \x03(\x0b\x32(.fraud_detection.VectorClock.EventsEntry\x1a-\n\x0b\x45ventsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\x05:\x02\x38\x01\"%\n\x04User\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ontact\x18\x02 \x01(\t\"A\n\nCreditCard\x12\x0e\n\x06number\x18\x01 \x01(\t\x12\x16\n\x0e\x65xpirationDate\x18\x02 \x01(\t\x12\x0b\n\x03\x63vv\x18\x03 \x01(\t\"A\n\tDURequest\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12#\n\x04user\x18\x03 \x01(\x0b\x32\x15.fraud_detection.User\"N\n\nDCCRequest\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12/\n\ncreditCard\x18\x03 \x01(\x0b\x32\x1b.fraud_detection.CreditCard\"i\n\x11\x44\x65tectionResponse\x12\x0f\n\x07orderId\x18\x01 \x01(\t\x12\x31\n\x0bvectorClock\x18\x02 \x01(\x0b\x32\x1c.fraud_detection.VectorClock\x12\x10\n\x08\x64\x65tected\x18\x03 \x01(\x08\".\n\rErrorResponse\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t2\xb9\x01\n\x0e\x46raudDetection\x12O\n\rDetectionUser\x12\x1a.fraud_detection.DURequest\x1a\".fraud_detection.DetectionResponse\x12V\n\x13\x44\x65tectionCreditCard\x12\x1b.fraud_detection.DCCRequest\x1a\".fraud_detection.DetectionResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'fraud_detection_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_USER']._serialized_start=42
-  _globals['_USER']._serialized_end=79
-  _globals['_BILLINGADDRESS']._serialized_start=81
-  _globals['_BILLINGADDRESS']._serialized_end=172
-  _globals['_DETECTIONREQUEST']._serialized_start=174
-  _globals['_DETECTIONREQUEST']._serialized_end=286
-  _globals['_DETECTIONRESPONSE']._serialized_start=288
-  _globals['_DETECTIONRESPONSE']._serialized_end=325
-  _globals['_ERRORRESPONSE']._serialized_start=327
-  _globals['_ERRORRESPONSE']._serialized_end=373
-  _globals['_FRAUDDETECTION']._serialized_start=375
-  _globals['_FRAUDDETECTION']._serialized_end=475
+  _globals['_VECTORCLOCK_EVENTSENTRY']._options = None
+  _globals['_VECTORCLOCK_EVENTSENTRY']._serialized_options = b'8\001'
+  _globals['_VECTORCLOCK']._serialized_start=42
+  _globals['_VECTORCLOCK']._serialized_end=160
+  _globals['_VECTORCLOCK_EVENTSENTRY']._serialized_start=115
+  _globals['_VECTORCLOCK_EVENTSENTRY']._serialized_end=160
+  _globals['_USER']._serialized_start=162
+  _globals['_USER']._serialized_end=199
+  _globals['_CREDITCARD']._serialized_start=201
+  _globals['_CREDITCARD']._serialized_end=266
+  _globals['_DUREQUEST']._serialized_start=268
+  _globals['_DUREQUEST']._serialized_end=333
+  _globals['_DCCREQUEST']._serialized_start=335
+  _globals['_DCCREQUEST']._serialized_end=413
+  _globals['_DETECTIONRESPONSE']._serialized_start=415
+  _globals['_DETECTIONRESPONSE']._serialized_end=520
+  _globals['_ERRORRESPONSE']._serialized_start=522
+  _globals['_ERRORRESPONSE']._serialized_end=568
+  _globals['_FRAUDDETECTION']._serialized_start=571
+  _globals['_FRAUDDETECTION']._serialized_end=756
 # @@protoc_insertion_point(module_scope)
