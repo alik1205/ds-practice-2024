@@ -9,12 +9,14 @@ utils_path_fraud_detection = os.path.abspath(os.path.join(FILE, '../../../utils/
 utils_path_transaction_verification = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
 utils_path_suggestions = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions'))
 utils_path_order_queue = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
-
+utils_path_database = os.path.abspath(os.path.join(FILE, '../../../utils/pb/database'))
 
 sys.path.insert(0, utils_path_fraud_detection)
 sys.path.insert(1, utils_path_transaction_verification)
 sys.path.insert(2, utils_path_suggestions)
 sys.path.insert(3, utils_path_order_queue)
+sys.path.insert(3, utils_path_database)
+
 
 
 import fraud_detection_pb2 as fraud_detection
@@ -28,6 +30,9 @@ import suggestions_pb2_grpc as suggestions_grpc
 
 import order_queue_pb2 as order_queue
 import order_queue_pb2_grpc as order_queue_grpc
+
+import database_pb2 as database
+import database_pb2_grpc as database_grpc
 
 import grpc
 
@@ -174,6 +179,17 @@ def QueueService(action, order_id):
             response = stub.EnqueueOrder(order_queue.EnqueueRequest(orderId=order_id))
         elif action == "DEQUEUE":
             response = stub.DequeueOrder(order_queue.DequeueRequest())
+
+    return response
+
+def DatabaseService(action, order_id, key, value=""):
+    with grpc.insecure_channel('order_queue:50055') as channel:
+        stub = database_grpc.BooksDatabaseStub(channel)
+
+        if action == "WRIGHT":
+            response = stub.Write(database.WriteRequest(key=key, value=value))
+        elif action == "READ":
+            response = stub.Read(database.ReadRequest(key=key))
 
     return response
 
