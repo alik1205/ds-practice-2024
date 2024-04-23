@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package order_executor;
+
+
+service OrderExecutor {
+  rpc SendElectionMessage(ElectionMessageRequest) returns (ElectionMessageResponse) {}
+  rpc ReceiveElectionMessage(ElectionMessageRequest) returns (ElectionMessageResponse) {}
+  rpc DequeueOrder(DequeueOrderRequest) returns (DequeueOrderResponse) {}
+}
+
+message ElectionMessageRequest {
+  string id = 1;
+}
+
+message ElectionMessageResponse {
+  string message = 1;
+}
+
+message DequeueOrderRequest {
+  // No fields, as the request doesn't need any additional information.
+}
+
+message DequeueOrderResponse {
+  string orderId = 1;
+  bool dequeued = 2;
+}
