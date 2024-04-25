@@ -9,12 +9,13 @@ utils_path_fraud_detection = os.path.abspath(os.path.join(FILE, '../../../utils/
 utils_path_transaction_verification = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
 utils_path_suggestions = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions'))
 utils_path_order_queue = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
-
+utils_path_order_executor = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_executor'))
 
 sys.path.insert(0, utils_path_fraud_detection)
 sys.path.insert(1, utils_path_transaction_verification)
 sys.path.insert(2, utils_path_suggestions)
 sys.path.insert(3, utils_path_order_queue)
+sys.path.insert(4, utils_path_order_executor)
 
 
 import fraud_detection_pb2 as fraud_detection
@@ -28,6 +29,9 @@ import suggestions_pb2_grpc as suggestions_grpc
 
 import order_queue_pb2 as order_queue
 import order_queue_pb2_grpc as order_queue_grpc
+
+import order_executor_pb2 as order_executor
+import order_executor_pb2_grpc as order_executor_grpc
 
 import grpc
 
@@ -148,6 +152,8 @@ def TransactionVerification(events, request, order_id):
 
     return response
 
+
+
 def SuggestionsService(events, request, order_id):
     with grpc.insecure_channel('suggestions:50053') as channel:
         stub = suggestions_grpc.SuggestionsServiceStub(channel)
@@ -176,6 +182,14 @@ def QueueService(action, order_id):
             response = stub.DequeueOrder(order_queue.DequeueRequest())
 
     return response
+
+def ExecuteOrderService(order_id):
+    with grpc.insecure_channel('localhost:50055') as channel:
+        stub = order_executor_grpc.OrderExecutorStub(channel)
+
+        request = order_executor.ExecuteOrderRequest(orderId=order_id)
+        response = stub.ExecuteOrder(request)
+        return response
 
 def run_in_thread(func, args, result_dict, key):
     result_dict[key] = func(*args)
@@ -248,9 +262,22 @@ def checkout():
             }
             response["suggestedBooks"].append(book_dict)
     
-    enqueue_responce = QueueService("ENQUEUE", order_id)
-    if enqueue_responce.Enqueued:
-        logger.info("Order %s is enqueued.", enqueue_responce.orderId)
+    if fraud_detection_response.detected or not transaction_verification_response.verified:
+        response['status'] = 'Order Rejected'
+    else:
+        response['status'] = 'Order Accepted'
+        enqueue_responce = QueueService("ENQUEUE", order_id)
+        
+        if enqueue_responce.Enqueued:
+            logger.info("Order %s is enqueued.", enqueue_responce.orderId)
+            
+            execute_order_response = ExecuteOrderService(order_id)
+            
+            if execute_order_response.success:
+                logger.info("Order execution was successful.")
+                
+            else:
+                logger.info("Order execution failed.")
 
     return jsonify(response)
 

@@ -6,22 +6,23 @@ import grpc
 import uuid
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
-utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb'))
-sys.path.insert(0, utils_path)
-import order_executor.order_executor_pb2 as order_executor_pb2
-import order_executor.order_executor_pb2_grpc as order_executor_pb2_grpc
+utils_path_order_queue = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
+utils_path_order_executor = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_executor'))
+sys.path.insert(0, utils_path_order_queue)
+sys.path.insert(1, utils_path_order_executor)
 
-utils_path2 = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
-sys.path.insert(0, utils_path2)
 import order_queue_pb2 as order_queue
 import order_queue_pb2_grpc as order_queue_grpc
+
+import order_executor_pb2 as order_executor
+import order_executor_pb2_grpc as order_executor_grpc
 
 logger = logging.getLogger(__name__)
 stdout = logging.StreamHandler(stream=sys.stdout)
 
 fmt = logging.Formatter("%(message)s")
 
-class OrderExecutor(order_executor_pb2_grpc.OrderExecutorServicer):
+class OrderExecutor(order_executor_grpc.OrderExecutorServicer):
     def __init__(self, id, next_instance, order_queue_channel):
         self.id = id
         self.next_instance = next_instance
@@ -82,7 +83,7 @@ def serve():
         order_executors[i].next_instance = order_executors[(i + 1) % num_instances]
     # Add OrderExecutor services to the server
     for executor in order_executors:
-        order_executor_pb2_grpc.add_OrderExecutorServicer_to_server(executor, server)
+        order_executor_grpc.add_OrderExecutorServicer_to_server(executor, server)
 
     # Listen on port 50055
     port = "50055"

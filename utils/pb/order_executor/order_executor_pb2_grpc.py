@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from order_executor import order_executor_pb2 as order__executor_dot_order__executor__pb2
+import order_executor_pb2 as order__executor__pb2
 
 
 class OrderExecutorStub(object):
@@ -16,18 +16,18 @@ class OrderExecutorStub(object):
         """
         self.SendElectionMessage = channel.unary_unary(
                 '/order_executor.OrderExecutor/SendElectionMessage',
-                request_serializer=order__executor_dot_order__executor__pb2.ElectionMessageRequest.SerializeToString,
-                response_deserializer=order__executor_dot_order__executor__pb2.ElectionMessageResponse.FromString,
+                request_serializer=order__executor__pb2.ElectionMessageRequest.SerializeToString,
+                response_deserializer=order__executor__pb2.ElectionMessageResponse.FromString,
                 )
         self.ReceiveElectionMessage = channel.unary_unary(
                 '/order_executor.OrderExecutor/ReceiveElectionMessage',
-                request_serializer=order__executor_dot_order__executor__pb2.ElectionMessageRequest.SerializeToString,
-                response_deserializer=order__executor_dot_order__executor__pb2.ElectionMessageResponse.FromString,
+                request_serializer=order__executor__pb2.ElectionMessageRequest.SerializeToString,
+                response_deserializer=order__executor__pb2.ElectionMessageResponse.FromString,
                 )
         self.DequeueOrder = channel.unary_unary(
                 '/order_executor.OrderExecutor/DequeueOrder',
-                request_serializer=order__executor_dot_order__executor__pb2.DequeueOrderRequest.SerializeToString,
-                response_deserializer=order__executor_dot_order__executor__pb2.DequeueOrderResponse.FromString,
+                request_serializer=order__executor__pb2.DequeueOrderRequest.SerializeToString,
+                response_deserializer=order__executor__pb2.DequeueOrderResponse.FromString,
                 )
 
 
@@ -57,18 +57,18 @@ def add_OrderExecutorServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SendElectionMessage': grpc.unary_unary_rpc_method_handler(
                     servicer.SendElectionMessage,
-                    request_deserializer=order__executor_dot_order__executor__pb2.ElectionMessageRequest.FromString,
-                    response_serializer=order__executor_dot_order__executor__pb2.ElectionMessageResponse.SerializeToString,
+                    request_deserializer=order__executor__pb2.ElectionMessageRequest.FromString,
+                    response_serializer=order__executor__pb2.ElectionMessageResponse.SerializeToString,
             ),
             'ReceiveElectionMessage': grpc.unary_unary_rpc_method_handler(
                     servicer.ReceiveElectionMessage,
-                    request_deserializer=order__executor_dot_order__executor__pb2.ElectionMessageRequest.FromString,
-                    response_serializer=order__executor_dot_order__executor__pb2.ElectionMessageResponse.SerializeToString,
+                    request_deserializer=order__executor__pb2.ElectionMessageRequest.FromString,
+                    response_serializer=order__executor__pb2.ElectionMessageResponse.SerializeToString,
             ),
             'DequeueOrder': grpc.unary_unary_rpc_method_handler(
                     servicer.DequeueOrder,
-                    request_deserializer=order__executor_dot_order__executor__pb2.DequeueOrderRequest.FromString,
-                    response_serializer=order__executor_dot_order__executor__pb2.DequeueOrderResponse.SerializeToString,
+                    request_deserializer=order__executor__pb2.DequeueOrderRequest.FromString,
+                    response_serializer=order__executor__pb2.DequeueOrderResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -92,8 +92,8 @@ class OrderExecutor(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/order_executor.OrderExecutor/SendElectionMessage',
-            order__executor_dot_order__executor__pb2.ElectionMessageRequest.SerializeToString,
-            order__executor_dot_order__executor__pb2.ElectionMessageResponse.FromString,
+            order__executor__pb2.ElectionMessageRequest.SerializeToString,
+            order__executor__pb2.ElectionMessageResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -109,8 +109,8 @@ class OrderExecutor(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/order_executor.OrderExecutor/ReceiveElectionMessage',
-            order__executor_dot_order__executor__pb2.ElectionMessageRequest.SerializeToString,
-            order__executor_dot_order__executor__pb2.ElectionMessageResponse.FromString,
+            order__executor__pb2.ElectionMessageRequest.SerializeToString,
+            order__executor__pb2.ElectionMessageResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -126,7 +126,7 @@ class OrderExecutor(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/order_executor.OrderExecutor/DequeueOrder',
-            order__executor_dot_order__executor__pb2.DequeueOrderRequest.SerializeToString,
-            order__executor_dot_order__executor__pb2.DequeueOrderResponse.FromString,
+            order__executor__pb2.DequeueOrderRequest.SerializeToString,
+            order__executor__pb2.DequeueOrderResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
