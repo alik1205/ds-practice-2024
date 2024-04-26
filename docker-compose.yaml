@@ -99,39 +99,65 @@ services:
   database1:
     build:
       context: ./
-      dockerfile: ./database1/Dockerfile
+      dockerfile: ./database/Dockerfile
     ports:
       - 50055:50055
     environment:
       - PYTHONUNBUFFERED=TRUE
-      - PYTHONFILE=/app/database1/src/app.py
+      - PYTHONFILE=/app/database/src/app.py
     volumes:
       - ./utils:/app/utils
-      - ./database1/src:/app/database1/src
+      - ./database/src:/app/database/src
       - ./book_database.json:/app/book_database.json
   database2:
     build:
       context: ./
-      dockerfile: ./database2/Dockerfile
+      dockerfile: ./database/Dockerfile
     ports:
       - 50056:50056
     environment:
       - PYTHONUNBUFFERED=TRUE
-      - PYTHONFILE=/app/database2/src/app.py
+      - PYTHONFILE=/app/database/src/app.py
     volumes:
       - ./utils:/app/utils
-      - ./database2/src:/app/database2/src
+      - ./database/src:/app/database/src
       - ./book_database.json:/app/book_database.json
   database3:
     build:
       context: ./
-      dockerfile: ./database3/Dockerfile
+      dockerfile: ./database/Dockerfile
     ports:
       - 50057:50057
     environment:
       - PYTHONUNBUFFERED=TRUE
-      - PYTHONFILE=/app/database3/src/app.py
+      - PYTHONFILE=/app/database/src/app.py
     volumes:
       - ./utils:/app/utils
-      - ./database3/src:/app/database3/src
+      - ./database/src:/app/database/src
+      - ./book_database.json:/app/book_database.json
+  order_executor1:
+    build:
+      context: ./
+      dockerfile: ./order_executor/Dockerfile
+    ports:
+      - 50058:50058
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/order_executor/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./order_executor/src:/app/order_executor/src
+      - ./book_database.json:/app/book_database.json
+  order_executor2:
+    build:
+      context: ./
+      dockerfile: ./order_executor/Dockerfile
+    ports:
+      - 50059:50059
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/order_executor/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./order_executor/src:/app/order_executor/src
       - ./book_database.json:/app/book_database.json

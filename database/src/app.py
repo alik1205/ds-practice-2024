@@ -60,8 +60,10 @@ def serve():
     # Add Suggestions service
     database_grpc.add_BooksDatabaseServicer_to_server(BooksDatabaseServicer(), server)
     # Listen on port 50053
-    port = "50057"
-    server.add_insecure_port("[::]:" + port)
+    ports = ["50055", "50056", "50057"]
+    for port in ports:
+        server.add_insecure_port("[::]:" + port)
+        print(f"Server started. Listening on port {port}.")
     # Start the server
     server.start()
     print(f"Server started. Listening on port {port}.")

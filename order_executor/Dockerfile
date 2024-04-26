@@ -6,7 +6,7 @@ FROM python:3.11
 WORKDIR /app
 
 # Copy the requirements file to the working directory
-COPY ./database2/requirements.txt .
+COPY ./order_executor/requirements.txt .
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -15,4 +15,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install reloadium
 
 # Set the command to run the application
-CMD reloadium run "database2/src/app.py"
+CMD reloadium run "order_executor/src/app.py"

@@ -3,21 +3,20 @@ import os
 import threading
 import uuid
 import logging
+import random
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path_fraud_detection = os.path.abspath(os.path.join(FILE, '../../../utils/pb/fraud_detection'))
 utils_path_transaction_verification = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
 utils_path_suggestions = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions'))
 utils_path_order_queue = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
-utils_path_database = os.path.abspath(os.path.join(FILE, '../../../utils/pb/database'))
+utils_path_order_executor = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_executor'))
 
 sys.path.insert(0, utils_path_fraud_detection)
 sys.path.insert(1, utils_path_transaction_verification)
 sys.path.insert(2, utils_path_suggestions)
 sys.path.insert(3, utils_path_order_queue)
-sys.path.insert(3, utils_path_database)
-
-
+sys.path.insert(4, utils_path_order_executor)
 
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
@@ -31,8 +30,8 @@ import suggestions_pb2_grpc as suggestions_grpc
 import order_queue_pb2 as order_queue
 import order_queue_pb2_grpc as order_queue_grpc
 
-import database_pb2 as database
-import database_pb2_grpc as database_grpc
+import order_executor_pb2 as order_executor
+import order_executor_pb2_grpc as order_executor_grpc
 
 import grpc
 
@@ -61,6 +60,10 @@ def update_vector_clock(new_vc):
     for event in events_order:
         vector_clock[event]+=new_vc[event]
     logger.info("Vector Clock is updated: %s", vector_clock)
+
+def leader_election(replicas):
+    return random.choice(replicas)
+
 
 def FraudDetection(events, request, order_id):
     with grpc.insecure_channel('fraud_detection:50051') as channel:
@@ -182,24 +185,21 @@ def QueueService(action, order_id):
 
     return response
 
-def DatabaseService(action, order_id, key, value=""):
-    replicas = ['database2:50055', 'database2:50056', 'database3:50057']
-    for replica in replicas:
-        try:
-            channel = grpc.insecure_channel(replica)
-            stub = database_grpc.BooksDatabaseStub(channel)
-            logger.info(f"Connected to replica {replica}.")
+def ExecutorService(order_id, request):
+    replicas = ["order_executor1:50058", "order_executor2:50059"]
+    with grpc.insecure_channel(leader_election(replicas)) as channel:
+        stub = order_executor_grpc.OrderExecutorStub(channel)
 
-            if action == "WRITE":
-                response = stub.Write(database.WriteRequest(key=key, value=value))
-            elif action == "READ":
-                response = stub.Read(database.ReadRequest(key=key))
+        items = list()
+        for _item in request["items"]:
+            item = order_executor.Item()
+            item.name = _item["name"]
+            item.quantity = _item["quantity"]
+            items.append(item)
 
-            return response
-            break
-        except:
-            logger.info(f"Failed to connect to replica {replica}.")
-            continue
+        response = stub.ExecuteOrder(order_executor.ExecuteOrderRequest(order_id=order_id, items=items))
+
+    return response
 
 def run_in_thread(func, args, result_dict, key):
     result_dict[key] = func(*args)
@@ -262,11 +262,6 @@ def checkout():
         response['status'] = 'Order Rejected'
     else:
         response['status'] = 'Order Accepted'
-        for item in request.json["items"]:
-            read_responce = DatabaseService("READ", order_id, key=item["name"])
-            logger.info(f"Read Responce: {read_responce.value}")
-            if read_responce.value:
-                write_responce = DatabaseService("WRITE", order_id, key=item["name"], value=read_responce.value-item["quantity"])
 
     if suggestions_response:
         for suggested_book in suggestions_response.suggestedBooks:
@@ -280,6 +275,7 @@ def checkout():
     enqueue_responce = QueueService("ENQUEUE", order_id)
     if enqueue_responce.Enqueued:
         logger.info("Order %s is enqueued.", enqueue_responce.orderId)
+        executor_responce = ExecutorService(order_id, request.json)
 
     return jsonify(response)
 
