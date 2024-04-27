@@ -24,6 +24,11 @@ class BooksDatabaseStub(object):
                 request_serializer=database__pb2.WriteRequest.SerializeToString,
                 response_deserializer=database__pb2.WriteResponse.FromString,
                 )
+        self.Prepare = channel.unary_unary(
+                '/suggestions.BooksDatabase/Prepare',
+                request_serializer=database__pb2.PrepareRequest.SerializeToString,
+                response_deserializer=database__pb2.PrepareResponse.FromString,
+                )
 
 
 class BooksDatabaseServicer(object):
@@ -41,6 +46,12 @@ class BooksDatabaseServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Prepare(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BooksDatabaseServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -53,6 +64,11 @@ def add_BooksDatabaseServicer_to_server(servicer, server):
                     servicer.Write,
                     request_deserializer=database__pb2.WriteRequest.FromString,
                     response_serializer=database__pb2.WriteResponse.SerializeToString,
+            ),
+            'Prepare': grpc.unary_unary_rpc_method_handler(
+                    servicer.Prepare,
+                    request_deserializer=database__pb2.PrepareRequest.FromString,
+                    response_serializer=database__pb2.PrepareResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -95,5 +111,22 @@ class BooksDatabase(object):
         return grpc.experimental.unary_unary(request, target, '/suggestions.BooksDatabase/Write',
             database__pb2.WriteRequest.SerializeToString,
             database__pb2.WriteResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Prepare(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/suggestions.BooksDatabase/Prepare',
+            database__pb2.PrepareRequest.SerializeToString,
+            database__pb2.PrepareResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -3,8 +3,17 @@ syntax = "proto3";
 package suggestions;
 
 service BooksDatabase {
-    rpc Read (ReadRequest) returns (ReadResponse) {}
-    rpc Write (WriteRequest) returns (WriteResponse) {}
+    rpc Read (ReadRequest) returns (ReadResponse);
+    rpc Write (WriteRequest) returns (WriteResponse);
+    rpc Prepare (PrepareRequest) returns (PrepareResponse);
+}
+
+message PrepareRequest {
+    string order_id = 1;
+}
+
+message PrepareResponse {
+    bool success = 1;
 }
 
 message ReadRequest {

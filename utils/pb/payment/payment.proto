@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package payment;
+
+service PaymentSystem {
+    rpc ExecutePayment (PaymentRequest) returns (PaymentResponse);
+    rpc Prepare (PrepareRequest) returns (PrepareResponse);
+}
+
+message PrepareRequest {
+    string order_id = 1;
+}
+
+message PrepareResponse {
+    bool success = 1;
+}
+
+message PaymentRequest {
+    string order_id = 1;
+    double amount = 2;
+}
+
+message PaymentResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+

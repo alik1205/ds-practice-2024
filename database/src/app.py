@@ -37,6 +37,12 @@ except FileNotFoundError:
     data = {}
 
 class BooksDatabaseServicer(database_grpc.BooksDatabaseServicer):
+    def Prepare(self, request, context):
+        response = database.PrepareResponse()
+        logger.info("Prepare Database for an update.")
+        response.success = True
+        return response
+
     def Read(self, request, context):       
         logger.info("Recived read request.")
         if request.key in data:

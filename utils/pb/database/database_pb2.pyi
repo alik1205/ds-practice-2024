@@ -4,6 +4,18 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class PrepareRequest(_message.Message):
+    __slots__ = ("order_id",)
+    ORDER_ID_FIELD_NUMBER: _ClassVar[int]
+    order_id: str
+    def __init__(self, order_id: _Optional[str] = ...) -> None: ...
+
+class PrepareResponse(_message.Message):
+    __slots__ = ("success",)
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    def __init__(self, success: bool = ...) -> None: ...
+
 class ReadRequest(_message.Message):
     __slots__ = ("key",)
     KEY_FIELD_NUMBER: _ClassVar[int]
