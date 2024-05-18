@@ -37,10 +37,24 @@ class FraudDetection(fraud_detection_grpc.FraudDetectionServicer):
         response = initialize_vector_clock(response)
         response.vectorClock.events['FD-user_data'] += 1
 
-        if request.user.name == "Alex":
+        #checking if name is longer than 2 letters
+        if len(request.user.name) <= 2:
             response.detected = True
+            logger.error("User name should be longer than 1 letter.")
+            return response
+        
+        #checking user has name 'Fraud Master'
+        if request.user.name == "Fraud Master":
+            response.detected = True
+            logger.error("User with name 'Fraud Master' detected.")
         else:
             response.detected = False
+        
+        #checking if contact information (phone, or email, etc) is longer than 6 characters
+        if len(request.user.contact) <= 5:
+            response.detected = True
+            logger.error("User contact information should be longer than 5 characters.")
+            return response
 
         if not response.detected:
             logger.info("No fraud detected.")

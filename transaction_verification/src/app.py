@@ -1,6 +1,8 @@
 import sys
 import os
 import logging
+import re
+from datetime import datetime
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
@@ -54,9 +56,31 @@ class TransactionVerification(transaction_verification_grpc.TransactionVerificat
 
         response = initialize_vector_clock(response)
         response.vectorClock.events['TV-credit_card'] += 1
-
-        if len(request.creditCard.number)!=5:
+        
+        #checking if credit card number is exactly 16 digits
+        if len(request.creditCard.number)!=16:
             response.verified =  False
+            logger.error("Credit card number should be exactly 16 digits.")
+        
+        #checking if expiry date is in format MM/YY
+        if not re.match(r"^(0[1-9]|1[0-2])\/[0-9]{2}$", request.creditCard.expirationDate):
+            response.verified = False
+            logger.error("Expiration date should be in the format MM/YY.")
+            return response
+        
+        #checking if expiration date is in the future
+        exp_date = datetime.strptime(request.creditCard.expirationDate, "%m/%y")
+        if exp_date <= datetime.now():
+            response.verified = False
+            logger.error("Expiration date should be in the future.")
+            return response
+        
+        #checking if CVV is a 3-digit number
+        if not re.match(r"^[0-9]{3}$", request.creditCard.cvv):
+            response.verified = False
+            logger.error("CVV should be a 3-digit number.")
+            return response
+        
         else:
             response.verified = True
 
