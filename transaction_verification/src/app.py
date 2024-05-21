@@ -3,12 +3,22 @@ import os
 import logging
 import re
 from datetime import datetime
+import json
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
+
 utils_path = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
+utils_path_database = os.path.abspath(os.path.join(FILE, '../../../utils/pb/database'))
+
 sys.path.insert(0, utils_path)
+sys.path.insert(1, utils_path_database)
+
 import transaction_verification_pb2 as transaction_verification
 import transaction_verification_pb2_grpc as transaction_verification_grpc
+
+import database_pb2 as database
+import database_pb2_grpc as database_grpc
+
 
 import grpc
 from concurrent import futures
@@ -40,6 +50,21 @@ class TransactionVerification(transaction_verification_grpc.TransactionVerificat
         response = initialize_vector_clock(response)
         response.vectorClock.events['TV-items'] += 1
         response.verified = True
+        replicas = ['database1:50055', 'database2:50056', 'database3:50057']
+        for replica in replicas:
+            try:
+                self.database_stub = database_grpc.BooksDatabaseStub(grpc.insecure_channel(replica))
+                logger.info(f"Connecting to replica {replica}.")
+                break
+            except:
+                logger.info(f"Failed to connect to replica {replica}.")
+                continue
+        for item in request.items:
+            read_responce = self.database_stub.Read(database.ReadRequest(key=item.name))
+            if read_responce.value == 0: 
+                logger.error(f"Item verification failed.")
+                response.verified = False
+                break
         return response
     
     def VerificationUser(self, request, context):
@@ -56,6 +81,8 @@ class TransactionVerification(transaction_verification_grpc.TransactionVerificat
 
         response = initialize_vector_clock(response)
         response.vectorClock.events['TV-credit_card'] += 1
+
+        response.verified = True
         
         #checking if credit card number is exactly 16 digits
         if len(request.creditCard.number)!=16:
@@ -80,9 +107,6 @@ class TransactionVerification(transaction_verification_grpc.TransactionVerificat
             response.verified = False
             logger.error("CVV should be a 3-digit number.")
             return response
-        
-        else:
-            response.verified = True
 
         if response.verified:
             logger.info("Transaction verified successfuly.")

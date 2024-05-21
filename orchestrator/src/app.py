@@ -260,6 +260,7 @@ def checkout():
 
     if fraud_detection_response.detected or not transaction_verification_response.verified:
         response['status'] = 'Order Rejected'
+        return jsonify(response)
     else:
         response['status'] = 'Order Accepted'
 
