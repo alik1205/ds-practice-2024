@@ -1,5 +1,13 @@
 version: '3'
 services:
+  observability:
+      image: grafana/otel-lgtm
+      ports:
+        - "3000:3000"
+        - "4317:4317"
+        - "4318:4318"
+      environment:
+        - OTEL_METRIC_EXPORT_INTERVAL=1000
   frontend:
     build:
       # Use the current directory as the build context
@@ -62,67 +70,115 @@ services:
       - ./fraud_detection/src:/app/fraud_detection/src
   transaction_verification:
     build:
-      # Use the current directory as the build context
-      # This allows us to access the files in the current directory inside the Dockerfile
       context: ./
-      # Use the Dockerfile in the fraud_detection directorys
       dockerfile: ./transaction_verification/Dockerfile
     ports:
-      # Expose port 50051 on the host, and map port 50051 of the container to port 50051 on the host
       - 50052:50052
     environment:
-      # Pass the environment variables to the container
-      # The PYTHONUNBUFFERED environment variable ensures that the output from the application is logged to the console
       - PYTHONUNBUFFERED=TRUE
-      # The PYTHONFILE environment variable specifies the absolute entry point of the application
-      # Check app.py in the fraud_detection directory to see how this is used
       - PYTHONFILE=/app/transaction_verification/src/app.py
     volumes:
-      # Mount the utils directory in the current directory to the /app/utils directory in the container
       - ./utils:/app/utils
-      # Mount the fraud_detection/src directory in the current directory to the /app/fraud_detection/src directory in the container
       - ./transaction_verification/src:/app/transaction_verification/src
   suggestions:
     build:
-      # Use the current directory as the build context
-      # This allows us to access the files in the current directory inside the Dockerfile
       context: ./
-      # Use the Dockerfile in the fraud_detection directorys
       dockerfile: ./suggestions/Dockerfile
     ports:
-      # Expose port 50051 on the host, and map port 50051 of the container to port 50051 on the host
       - 50053:50053
     environment:
-      # Pass the environment variables to the container
-      # The PYTHONUNBUFFERED environment variable ensures that the output from the application is logged to the console
       - PYTHONUNBUFFERED=TRUE
-      # The PYTHONFILE environment variable specifies the absolute entry point of the application
-      # Check app.py in the fraud_detection directory to see how this is used
       - PYTHONFILE=/app/suggestions/src/app.py
     volumes:
-      # Mount the utils directory in the current directory to the /app/utils directory in the container
       - ./utils:/app/utils
-      # Mount the fraud_detection/src directory in the current directory to the /app/fraud_detection/src directory in the container
       - ./suggestions/src:/app/suggestions/src
   order_queue:
     build:
-      # Use the current directory as the build context
-      # This allows us to access the files in the current directory inside the Dockerfile
       context: ./
-      # Use the Dockerfile in the fraud_detection directorys
       dockerfile: ./order_queue/Dockerfile
     ports:
-      # Expose port 50051 on the host, and map port 50051 of the container to port 50051 on the host
       - 50054:50054
     environment:
-      # Pass the environment variables to the container
-      # The PYTHONUNBUFFERED environment variable ensures that the output from the application is logged to the console
       - PYTHONUNBUFFERED=TRUE
-      # The PYTHONFILE environment variable specifies the absolute entry point of the application
-      # Check app.py in the fraud_detection directory to see how this is used
       - PYTHONFILE=/app/order_queue/src/app.py
     volumes:
-      # Mount the utils directory in the current directory to the /app/utils directory in the container
       - ./utils:/app/utils
-      # Mount the fraud_detection/src directory in the current directory to the /app/fraud_detection/src directory in the container
       - ./order_queue/src:/app/order_queue/src
+  database1:
+    build:
+      context: ./
+      dockerfile: ./database/Dockerfile
+    ports:
+      - 50055:50055
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/database/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./database/src:/app/database/src
+      - ./book_database.json:/app/book_database.json
+  database2:
+    build:
+      context: ./
+      dockerfile: ./database/Dockerfile
+    ports:
+      - 50056:50056
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/database/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./database/src:/app/database/src
+      - ./book_database.json:/app/book_database.json
+  database3:
+    build:
+      context: ./
+      dockerfile: ./database/Dockerfile
+    ports:
+      - 50057:50057
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/database/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./database/src:/app/database/src
+      - ./book_database.json:/app/book_database.json
+  order_executor1:
+    build:
+      context: ./
+      dockerfile: ./order_executor/Dockerfile
+    ports:
+      - 50058:50058
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/order_executor/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./order_executor/src:/app/order_executor/src
+      - ./book_database.json:/app/book_database.json
+  order_executor2:
+    build:
+      context: ./
+      dockerfile: ./order_executor/Dockerfile
+    ports:
+      - 50059:50059
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/order_executor/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./order_executor/src:/app/order_executor/src
+      - ./book_database.json:/app/book_database.json
+  payment:
+    build:
+      context: ./
+      dockerfile: ./payment/Dockerfile
+    ports:
+      - 50060:50060
+    environment:
+      - PYTHONUNBUFFERED=TRUE
+      - PYTHONFILE=/app/payment/src/app.py
+    volumes:
+      - ./utils:/app/utils
+      - ./payment/src:/app/payment/src
+  

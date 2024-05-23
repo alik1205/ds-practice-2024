@@ -3,19 +3,20 @@ import os
 import threading
 import uuid
 import logging
+import random
 
 FILE = __file__ if '__file__' in globals() else os.getenv("PYTHONFILE", "")
 utils_path_fraud_detection = os.path.abspath(os.path.join(FILE, '../../../utils/pb/fraud_detection'))
 utils_path_transaction_verification = os.path.abspath(os.path.join(FILE, '../../../utils/pb/transaction_verification'))
 utils_path_suggestions = os.path.abspath(os.path.join(FILE, '../../../utils/pb/suggestions'))
 utils_path_order_queue = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_queue'))
-
+utils_path_order_executor = os.path.abspath(os.path.join(FILE, '../../../utils/pb/order_executor'))
 
 sys.path.insert(0, utils_path_fraud_detection)
 sys.path.insert(1, utils_path_transaction_verification)
 sys.path.insert(2, utils_path_suggestions)
 sys.path.insert(3, utils_path_order_queue)
-
+sys.path.insert(4, utils_path_order_executor)
 
 import fraud_detection_pb2 as fraud_detection
 import fraud_detection_pb2_grpc as fraud_detection_grpc
@@ -28,6 +29,9 @@ import suggestions_pb2_grpc as suggestions_grpc
 
 import order_queue_pb2 as order_queue
 import order_queue_pb2_grpc as order_queue_grpc
+
+import order_executor_pb2 as order_executor
+import order_executor_pb2_grpc as order_executor_grpc
 
 import grpc
 
@@ -56,6 +60,10 @@ def update_vector_clock(new_vc):
     for event in events_order:
         vector_clock[event]+=new_vc[event]
     logger.info("Vector Clock is updated: %s", vector_clock)
+
+def leader_election(replicas):
+    return random.choice(replicas)
+
 
 def FraudDetection(events, request, order_id):
     with grpc.insecure_channel('fraud_detection:50051') as channel:
@@ -177,6 +185,22 @@ def QueueService(action, order_id):
 
     return response
 
+def ExecutorService(order_id, request):
+    replicas = ["order_executor1:50058", "order_executor2:50059"]
+    with grpc.insecure_channel(leader_election(replicas)) as channel:
+        stub = order_executor_grpc.OrderExecutorStub(channel)
+
+        items = list()
+        for _item in request["items"]:
+            item = order_executor.Item()
+            item.name = _item["name"]
+            item.quantity = _item["quantity"]
+            items.append(item)
+
+        response = stub.ExecuteOrder(order_executor.ExecuteOrderRequest(order_id=order_id, items=items))
+
+    return response
+
 def run_in_thread(func, args, result_dict, key):
     result_dict[key] = func(*args)
 
@@ -236,6 +260,7 @@ def checkout():
 
     if fraud_detection_response.detected or not transaction_verification_response.verified:
         response['status'] = 'Order Rejected'
+        return jsonify(response)
     else:
         response['status'] = 'Order Accepted'
 
@@ -251,6 +276,7 @@ def checkout():
     enqueue_responce = QueueService("ENQUEUE", order_id)
     if enqueue_responce.Enqueued:
         logger.info("Order %s is enqueued.", enqueue_responce.orderId)
+        executor_responce = ExecutorService(order_id, request.json)
 
     return jsonify(response)
 
